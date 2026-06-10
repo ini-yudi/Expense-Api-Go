@@ -24,6 +24,9 @@ func getEnv(key, fallback string) string {
 func InitDB() error {
 	mysqlURL := getEnv("MYSQL_PUBLIC_URL", "")
 	if mysqlURL == "" {
+		mysqlURL = getEnv("MYSQL_URL", "")
+	}
+	if mysqlURL == "" {
 		mysqlURL = getEnv("DATABASE_URL", "")
 	}
 
@@ -44,11 +47,11 @@ func InitDB() error {
 			u.User.Username(), pass, host, port, dbname,
 		)
 	} else {
-		host := getEnv("MYSQL_HOST", "localhost")
-		port := getEnv("MYSQL_PORT", "3306")
-		user := getEnv("MYSQL_USER", "root")
-		pass := getEnv("MYSQL_PASSWORD", "1234")
-		dbname := getEnv("MYSQL_DATABASE", "expense_tracker")
+		host := getEnv("MYSQLHOST", getEnv("MYSQL_HOST", "localhost"))
+		port := getEnv("MYSQLPORT", getEnv("MYSQL_PORT", "3306"))
+		user := getEnv("MYSQLUSER", getEnv("MYSQL_USER", "root"))
+		pass := getEnv("MYSQLPASSWORD", getEnv("MYSQL_PASSWORD", "1234"))
+		dbname := getEnv("MYSQLDATABASE", getEnv("MYSQL_DATABASE", "expense_tracker"))
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
 			user, pass, host, port, dbname,
 		)
