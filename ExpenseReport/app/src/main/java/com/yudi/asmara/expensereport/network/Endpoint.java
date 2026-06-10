@@ -3,7 +3,7 @@ package com.yudi.asmara.expensereport.network;
 public class Endpoint {
     // Emulator: 10.0.2.2 -> localhost host machine
     // Device fisik: pakai IP komputer (contoh: 192.168.1.10)
-    private static final String BASE_URL = "http://192.168.123.4:8080/api";
+    private static final String BASE_URL = "https://expense-api-go-production.up.railway.app/api";
 
     public static String getBaseUrl() {
         return BASE_URL;

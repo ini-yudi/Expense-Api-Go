@@ -65,6 +65,7 @@ public class BudgetFragment extends Fragment {
         categoryService.getAll(new NetworkResult() {
             @Override
             public void onSuccess(String response) {
+                if (!isAdded()) return;
                 try {
                     JSONObject json = new JSONObject(response);
                     if (json.getBoolean("status")) {
@@ -85,11 +86,13 @@ public class BudgetFragment extends Fragment {
                         binding.spCategory.setAdapter(adapter);
                     }
                 } catch (JSONException e) {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), "Gagal memuat kategori", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onError(String message) {
+                if (!isAdded()) return;
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
@@ -99,6 +102,7 @@ public class BudgetFragment extends Fragment {
         budgetService.getAll(new NetworkResult() {
             @Override
             public void onSuccess(String response) {
+                if (!isAdded()) return;
                 try {
                     JSONObject json = new JSONObject(response);
                     if (json.getBoolean("status")) {
@@ -111,7 +115,7 @@ public class BudgetFragment extends Fragment {
                             double sisa = jumlah - terpakai;
                             double persen = obj.optDouble("persen", 0);
 
-                            ItemBudgetBinding item = ItemBudgetBinding.inflate(getLayoutInflater());
+                            ItemBudgetBinding item = ItemBudgetBinding.inflate(LayoutInflater.from(requireContext()));
                             item.tvBudgetName.setText(obj.optString("nama_kategori", ""));
                             item.tvBudgetSisa.setText(FormatUtils.rupiah(sisa));
                             item.tvBudgetDetail.setText("Anggaran: " + FormatUtils.rupiah(jumlah) + " | Terpakai: " + FormatUtils.rupiah(terpakai));
@@ -135,11 +139,13 @@ public class BudgetFragment extends Fragment {
                         binding.cardBudgetList.setVisibility(data.length() > 0 ? View.VISIBLE : View.GONE);
                     }
                 } catch (JSONException e) {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), "Gagal memuat anggaran", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onError(String message) {
+                if (!isAdded()) return;
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
@@ -163,11 +169,13 @@ public class BudgetFragment extends Fragment {
             budgetService.save(body.toString(), new NetworkResult() {
                 @Override
                 public void onSuccess(String response) {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), "Anggaran disimpan", Toast.LENGTH_SHORT).show();
                     loadBudgets();
                 }
                 @Override
                 public void onError(String message) {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                 }
             });

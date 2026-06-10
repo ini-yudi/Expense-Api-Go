@@ -3,6 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -21,15 +22,37 @@ func getEnv(key, fallback string) string {
 }
 
 func InitDB() error {
-	host := getEnv("MYSQL_HOST", "localhost")
-	port := getEnv("MYSQL_PORT", "3306")
-	user := getEnv("MYSQL_USER", "root")
-	pass := getEnv("MYSQL_PASSWORD", "1234")
-	dbname := getEnv("MYSQL_DATABASE", "expense_tracker")
+	mysqlURL := getEnv("MYSQL_PUBLIC_URL", "")
+	if mysqlURL == "" {
+		mysqlURL = getEnv("DATABASE_URL", "")
+	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
-		user, pass, host, port, dbname,
-	)
+	var dsn string
+	if mysqlURL != "" {
+		u, err := url.Parse(mysqlURL)
+		if err != nil {
+			return fmt.Errorf("gagal parse database URL: %w", err)
+		}
+		pass, _ := u.User.Password()
+		host := u.Hostname()
+		port := u.Port()
+		if port == "" {
+			port = "3306"
+		}
+		dbname := strings.TrimPrefix(u.Path, "/")
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
+			u.User.Username(), pass, host, port, dbname,
+		)
+	} else {
+		host := getEnv("MYSQL_HOST", "localhost")
+		port := getEnv("MYSQL_PORT", "3306")
+		user := getEnv("MYSQL_USER", "root")
+		pass := getEnv("MYSQL_PASSWORD", "1234")
+		dbname := getEnv("MYSQL_DATABASE", "expense_tracker")
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true",
+			user, pass, host, port, dbname,
+		)
+	}
 
 	var err error
 	DB, err = sql.Open("mysql", dsn)
@@ -71,6 +94,25 @@ func autoMigrate() error {
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			UNIQUE KEY unique_budget (user_id, kategori_id, bulan, tahun)
+		)`,
+		`CREATE TABLE IF NOT EXISTS categories (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			user_id INT NOT NULL DEFAULT 0,
+			nama_kategori VARCHAR(100) NOT NULL,
+			icon VARCHAR(50) NOT NULL DEFAULT '',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS transactions (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			user_id INT NOT NULL DEFAULT 0,
+			kategori_id INT NOT NULL,
+			jumlah DOUBLE NOT NULL,
+			deskripsi TEXT,
+			tanggal DATE NOT NULL,
+			tipe VARCHAR(10) NOT NULL DEFAULT 'expense',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 		)`,
 	}
 	for _, q := range migrate {
