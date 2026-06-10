@@ -1,5 +1,6 @@
 # Go
 expense-api-go/expense-api.exe
+expense-api.exe
 *.exe
 *.test
 *.out
