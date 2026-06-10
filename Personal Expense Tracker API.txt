@@ -1,0 +1,266 @@
+{
+  "info": {
+    "name": "Personal Expense Tracker API",
+    "description": "API untuk mencatat pengeluaran harian",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "transaksi_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "kategori_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Ringkasan Dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response sukses', () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.be.true;",
+                  "    pm.expect(json.data).to.have.property('today');",
+                  "    pm.expect(json.data).to.have.property('month');",
+                  "    pm.expect(json.data).to.have.property('year');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kategori",
+      "item": [
+        {
+          "name": "Semua Kategori",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Detail Kategori",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{kategori_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{kategori_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Tambah Kategori",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_kategori\": \"Transportasi\",\n  \"icon\": \"directions_bus\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Update Kategori",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_kategori\": \"Makanan & Minuman\",\n  \"icon\": \"restaurant\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{kategori_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{kategori_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Hapus Kategori",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{kategori_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{kategori_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transaksi",
+      "item": [
+        {
+          "name": "Semua Transaksi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions"]
+            }
+          }
+        },
+        {
+          "name": "Detail Transaksi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transactions/{{transaksi_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions", "{{transaksi_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Tambah Transaksi",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kategori_id\": 1,\n  \"nominal\": 25000,\n  \"keterangan\": \"Nasi Goreng\",\n  \"tanggal_transaksi\": \"2026-06-09\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions"]
+            }
+          }
+        },
+        {
+          "name": "Update Transaksi",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kategori_id\": 2,\n  \"nominal\": 30000,\n  \"keterangan\": \"Ayam Geprek\",\n  \"tanggal_transaksi\": \"2026-06-09\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/transactions/{{transaksi_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions", "{{transaksi_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Hapus Transaksi",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transactions/{{transaksi_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions", "{{transaksi_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Laporan",
+      "item": [
+        {
+          "name": "Laporan Harian",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/report/daily?date=2026-06-09",
+              "host": ["{{base_url}}"],
+              "path": ["api", "report", "daily"],
+              "query": [
+                { "key": "date", "value": "2026-06-09" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Laporan Bulanan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/report/monthly?month=6&year=2026",
+              "host": ["{{base_url}}"],
+              "path": ["api", "report", "monthly"],
+              "query": [
+                { "key": "month", "value": "6" },
+                { "key": "year", "value": "2026" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Statistik (Grafik)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/report/stats?start_date=2026-06-01&end_date=2026-06-30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "report", "stats"],
+              "query": [
+                { "key": "start_date", "value": "2026-06-01" },
+                { "key": "end_date", "value": "2026-06-30" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
