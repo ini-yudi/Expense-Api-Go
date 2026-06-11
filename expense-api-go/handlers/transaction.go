@@ -119,6 +119,9 @@ func createTransaction(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, "Gagal menambahkan transaksi", http.StatusInternalServerError)
 		return
 	}
+
+	repository.RecalculateBudgetFromTransaction(claims.UserID, input.KategoriID, input.Tipe, input.Nominal, input.TanggalTransaksi)
+
 	response.Created(w, transaction, "Transaksi berhasil ditambahkan")
 }
 
@@ -161,13 +164,27 @@ func updateTransaction(w http.ResponseWriter, r *http.Request, id int) {
 		response.Error(w, "Gagal memperbarui transaksi", http.StatusInternalServerError)
 		return
 	}
+
+	claims := middleware.GetClaims(r)
+	repository.RecalculateBudgetFromTransaction(claims.UserID, kategoriID, tipe, nominal, tanggal)
+
 	response.Success(w, transaction, "Transaksi berhasil diperbarui")
 }
 
 func deleteTransaction(w http.ResponseWriter, r *http.Request, id int) {
+	existing, err := repository.GetTransactionByID(id)
+	if err != nil {
+		response.Error(w, "Transaksi tidak ditemukan", http.StatusNotFound)
+		return
+	}
+
 	if err := repository.DeleteTransaction(id); err != nil {
 		response.Error(w, "Gagal menghapus transaksi", http.StatusInternalServerError)
 		return
 	}
+
+	claims := middleware.GetClaims(r)
+	repository.RecalculateBudgetFromTransaction(claims.UserID, existing.KategoriID, existing.Tipe, -existing.Nominal, existing.TanggalTransaksi)
+
 	response.Success(w, nil, "Transaksi berhasil dihapus")
 }

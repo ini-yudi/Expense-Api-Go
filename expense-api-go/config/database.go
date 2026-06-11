@@ -94,9 +94,19 @@ func autoMigrate() error {
 			jumlah DOUBLE NOT NULL DEFAULT 0,
 			bulan INT NOT NULL,
 			tahun INT NOT NULL,
+			priority INT NOT NULL DEFAULT 5,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 			UNIQUE KEY unique_budget (user_id, kategori_id, bulan, tahun)
+		)`,
+		`CREATE TABLE IF NOT EXISTS budget_allocations (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			user_id INT NOT NULL,
+			kategori_id INT NOT NULL,
+			persen DOUBLE NOT NULL DEFAULT 0,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			UNIQUE KEY unique_allocation (user_id, kategori_id)
 		)`,
 		`CREATE TABLE IF NOT EXISTS categories (
 			id INT AUTO_INCREMENT PRIMARY KEY,
@@ -127,6 +137,7 @@ func autoMigrate() error {
 	columns := map[string]map[string]string{
 		"categories":   {"user_id": "INT NOT NULL DEFAULT 0"},
 		"transactions": {"user_id": "INT NOT NULL DEFAULT 0", "tipe": "VARCHAR(10) NOT NULL DEFAULT 'expense'"},
+		"budgets":      {"priority": "INT NOT NULL DEFAULT 5"},
 	}
 	for table, cols := range columns {
 		for col, def := range cols {
