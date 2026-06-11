@@ -4,9 +4,9 @@ import (
 	"expense-api/config"
 	"expense-api/handlers"
 	"expense-api/middleware"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func corsMiddleware(next http.Handler) http.Handler {
@@ -50,7 +50,11 @@ func main() {
 
 	mux.Handle("/api/", middleware.AuthMiddleware(protected))
 
-	addr := ":8080"
-	fmt.Println("Expense Tracker API running on http://0.0.0.0" + addr)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	addr := ":" + port
+	log.Printf("Expense Tracker API running on port %s", port)
 	log.Fatal(http.ListenAndServe(addr, corsMiddleware(mux)))
 }
