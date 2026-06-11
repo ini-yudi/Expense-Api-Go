@@ -46,6 +46,7 @@ type MonthlyCategoryTotal struct {
 }
 
 type MonthlyReport struct {
+	GrandTotal        float64                `json:"grand_total"`
 	GrandTotalIncome  float64                `json:"grand_total_income"`
 	GrandTotalExpense float64                `json:"grand_total_expense"`
 	Categories        []MonthlyCategoryTotal `json:"categories"`

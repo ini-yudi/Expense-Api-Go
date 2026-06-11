@@ -267,6 +267,7 @@ func GetMonthlyReport(userID, month, year int) (*models.MonthlyReport, error) {
 		}
 	}
 	return &models.MonthlyReport{
+		GrandTotal:        grandIncome + grandExpense,
 		GrandTotalIncome:  grandIncome,
 		GrandTotalExpense: grandExpense,
 		Categories:        categories,
