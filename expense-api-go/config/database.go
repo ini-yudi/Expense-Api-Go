@@ -138,6 +138,10 @@ func autoMigrate() error {
 
 	DB.Exec("UPDATE transactions SET tipe = 'expense' WHERE tipe IS NULL OR tipe = ''")
 
+	renameColumn("transactions", "deskripsi", "keterangan", "TEXT")
+	renameColumn("transactions", "jumlah", "nominal", "DOUBLE NOT NULL")
+	renameColumn("transactions", "tanggal", "tanggal_transaksi", "DATE NOT NULL")
+
 	if err := seedDefaultUser(); err != nil {
 		return err
 	}
@@ -153,6 +157,18 @@ func addColumnIfNotExists(table, column, definition string) error {
 		return err
 	}
 	return nil
+}
+
+func renameColumn(table, oldName, newName, definition string) {
+	_, err := DB.Exec("ALTER TABLE " + table + " CHANGE " + oldName + " " + newName + " " + definition)
+	if err != nil {
+		if strings.Contains(err.Error(), "Unknown column") {
+			return
+		}
+		if strings.Contains(err.Error(), "Duplicate column") {
+			return
+		}
+	}
 }
 
 func migrateOldData() error {
