@@ -110,9 +110,9 @@ func autoMigrate() error {
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			user_id INT NOT NULL DEFAULT 0,
 			kategori_id INT NOT NULL,
-			jumlah DOUBLE NOT NULL,
-			deskripsi TEXT,
-			tanggal DATE NOT NULL,
+			nominal DOUBLE NOT NULL,
+			keterangan TEXT,
+			tanggal_transaksi DATE NOT NULL,
 			tipe VARCHAR(10) NOT NULL DEFAULT 'expense',
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
