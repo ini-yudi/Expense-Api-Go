@@ -100,14 +100,14 @@ public class LottieDialog {
 
     public static LottieDialog showWarning(Context context, Runnable onConfirm) {
         LottieDialog ld = new LottieDialog(context);
-        ld.setAnimation(R.raw.warning);
-        ld.setRepeatCount(0);
+        ld.setAnimation(R.raw.logout_warning);
+        ld.setRepeatCount(1);
         ld.show();
         if (onConfirm != null) {
             ld.dialog.getWindow().getDecorView().postDelayed(() -> {
                 ld.dismiss();
                 onConfirm.run();
-            }, 1200);
+            }, 2000);
         }
         return ld;
     }
