@@ -2,6 +2,8 @@ package com.yudi.asmara.expensereport.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +23,8 @@ public class LoginActivity extends AppCompatActivity {
     private AuthService authService;
     private AppSession session;
     private LottieDialog loadingDialog;
+    private long loadingStartTime;
+    private static final long MIN_LOADING_MS = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,20 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void dismissLoading(Runnable after) {
+        long elapsed = System.currentTimeMillis() - loadingStartTime;
+        long remaining = MIN_LOADING_MS - elapsed;
+        if (remaining > 0) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (loadingDialog != null) loadingDialog.dismiss();
+                if (after != null) after.run();
+            }, remaining);
+        } else {
+            if (loadingDialog != null) loadingDialog.dismiss();
+            if (after != null) after.run();
+        }
+    }
+
     private void login() {
         String username = binding.etUsername.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
@@ -57,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         loadingDialog = LottieDialog.showLoading(this);
+        loadingStartTime = System.currentTimeMillis();
 
         authService.login(username, password, new NetworkResult() {
             @Override
@@ -73,30 +92,33 @@ public class LoginActivity extends AppCompatActivity {
                         session.user().setUsername(uname);
                         session.setToken(token);
 
-                        if (loadingDialog != null) loadingDialog.dismiss();
-
-                        LottieDialog.showSuccess(LoginActivity.this, () -> {
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
+                        dismissLoading(() -> {
+                            LottieDialog.showSuccess(LoginActivity.this, () -> {
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            });
                         });
                     } else {
-                        if (loadingDialog != null) loadingDialog.dismiss();
-                        LottieDialog.showError(LoginActivity.this);
-                        Toast.makeText(LoginActivity.this, json.getString("message"), Toast.LENGTH_SHORT).show();
+                        dismissLoading(() -> {
+                            LottieDialog.showError(LoginActivity.this);
+                            Toast.makeText(LoginActivity.this, json.getString("message"), Toast.LENGTH_SHORT).show();
+                        });
                     }
                 } catch (JSONException e) {
-                    if (loadingDialog != null) loadingDialog.dismiss();
-                    LottieDialog.showError(LoginActivity.this);
-                    Toast.makeText(LoginActivity.this, "Gagal memproses data", Toast.LENGTH_SHORT).show();
+                    dismissLoading(() -> {
+                        LottieDialog.showError(LoginActivity.this);
+                        Toast.makeText(LoginActivity.this, "Gagal memproses data", Toast.LENGTH_SHORT).show();
+                    });
                 }
             }
 
             @Override
             public void onError(String message) {
-                if (loadingDialog != null) loadingDialog.dismiss();
-                LottieDialog.showError(LoginActivity.this);
+                dismissLoading(() -> {
+                    LottieDialog.showError(LoginActivity.this);
+                });
                 binding.btnLogin.setEnabled(true);
                 binding.btnLogin.setText("Masuk");
             }
