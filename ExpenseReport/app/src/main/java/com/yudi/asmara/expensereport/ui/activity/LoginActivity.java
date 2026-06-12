@@ -10,6 +10,7 @@ import com.yudi.asmara.expensereport.databinding.ActivityLoginBinding;
 import com.yudi.asmara.expensereport.network.NetworkResult;
 import com.yudi.asmara.expensereport.network.services.AuthService;
 import com.yudi.asmara.expensereport.sessions.AppSession;
+import com.yudi.asmara.expensereport.utils.LottieDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private AuthService authService;
     private AppSession session;
+    private LottieDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,43 +56,49 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        binding.btnLogin.setEnabled(false);
-        binding.btnLogin.setText("Memuat...");
+        loadingDialog = LottieDialog.showLoading(this);
 
         authService.login(username, password, new NetworkResult() {
             @Override
             public void onSuccess(String response) {
-                binding.btnLogin.setEnabled(true);
-                binding.btnLogin.setText("Masuk");
                 try {
                     JSONObject json = new JSONObject(response);
                     if (json.getBoolean("status")) {
                         JSONObject data = json.getJSONObject("data");
                         String token = data.getString("token");
                         JSONObject user = data.getJSONObject("user");
-                        String username = user.getString("username");
+                        String uname = user.getString("username");
 
                         session.setLoggedIn(true);
-                        session.user().setUsername(username);
+                        session.user().setUsername(uname);
                         session.setToken(token);
 
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
+                        if (loadingDialog != null) loadingDialog.dismiss();
+
+                        LottieDialog.showSuccess(LoginActivity.this, () -> {
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        });
                     } else {
+                        if (loadingDialog != null) loadingDialog.dismiss();
+                        LottieDialog.showError(LoginActivity.this);
                         Toast.makeText(LoginActivity.this, json.getString("message"), Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
+                    if (loadingDialog != null) loadingDialog.dismiss();
+                    LottieDialog.showError(LoginActivity.this);
                     Toast.makeText(LoginActivity.this, "Gagal memproses data", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onError(String message) {
+                if (loadingDialog != null) loadingDialog.dismiss();
+                LottieDialog.showError(LoginActivity.this);
                 binding.btnLogin.setEnabled(true);
                 binding.btnLogin.setText("Masuk");
-                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
     }

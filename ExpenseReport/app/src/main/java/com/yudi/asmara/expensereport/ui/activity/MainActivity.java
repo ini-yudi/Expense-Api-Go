@@ -15,6 +15,7 @@ import com.yudi.asmara.expensereport.network.NetworkResult;
 import com.yudi.asmara.expensereport.network.services.DashboardService;
 import com.yudi.asmara.expensereport.sessions.AppSession;
 import com.yudi.asmara.expensereport.utils.FormatUtils;
+import com.yudi.asmara.expensereport.utils.LottieDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,8 +96,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        session.clearSession();
-        redirectToLogin();
+        LottieDialog.showWarning(this, () -> {
+            session.clearSession();
+            Toast.makeText(this, "Berhasil logout", Toast.LENGTH_SHORT).show();
+            redirectToLogin();
+        });
     }
 
     private void redirectToLogin() {

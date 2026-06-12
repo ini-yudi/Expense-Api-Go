@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.yudi.asmara.expensereport.databinding.ActivityProfileBinding;
 import com.yudi.asmara.expensereport.sessions.AppSession;
+import com.yudi.asmara.expensereport.utils.LottieDialog;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -28,7 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
         session = new AppSession(this);
         binding.tvUsername.setText(session.user().getUsername());
 
-        binding.btnLogout.setOnClickListener(v -> logout());
+        binding.btnLogout.setOnClickListener(v -> showLogoutWarning());
     }
 
     @Override
@@ -37,11 +38,14 @@ public class ProfileActivity extends AppCompatActivity {
         return true;
     }
 
-    private void logout() {
-        session.clearSession();
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+    private void showLogoutWarning() {
+        LottieDialog.showWarning(this, () -> {
+            session.clearSession();
+            Toast.makeText(this, "Berhasil logout", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 }

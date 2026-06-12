@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.volley)
     implementation(libs.gson)
+    implementation(libs.lottie)
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
